@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Iphone-inline-video by grazies</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Iphone-inline-video</h1>
+      <h2 class="project-tagline">📱 Make videos playable inline on the iPhone (prevents automatic fullscreen)</h2>
+      <a href="https://github.com/grazies/iphone-inline-video" class="btn">View on GitHub</a>
+      <a href="https://github.com/grazies/iphone-inline-video/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/grazies/iphone-inline-video/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="iphone-inline-video" class="anchor" href="#iphone-inline-video" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>iphone-inline-video</h1>
+
+<blockquote>
+<p>Make videos playable inline on Safari on iPhone (prevents automatic fullscreen)</p>
+</blockquote>
+
+<p><a href="#no-link"><img src="https://badges.herokuapp.com/size/github/bfred-it/iphone-inline-video/master/dist/iphone-inline-video.browser.js?gzip=true&amp;label=gzipped%20size" alt="gzipped size"></a>
+<a href="https://travis-ci.org/bfred-it/iphone-inline-video"><img src="https://api.travis-ci.org/bfred-it/iphone-inline-video.svg" alt="Travis build status"></a>
+<a href="https://www.npmjs.com/package/iphone-inline-video"><img src="https://img.shields.io/npm/v/iphone-inline-video.svg" alt="npm version"></a></p>
+
+<p>This lets you:</p>
+
+<ul>
+<li>Play videos without forcing the fullscreen on the iPhone (<a href="http://bfred-it.github.io/iphone-inline-video/demo/">demo</a>)</li>
+<li>Play silent videos without user interaction</li>
+<li>Autoplay silent videos with the <code>autoplay</code> attribute (<a href="http://bfred-it.github.io/iphone-inline-video/demo/autoplay.html">demo</a>)</li>
+<li>Play multiple silent videos at the same time</li>
+<li>Use videos as WebGL/ThreeJS textures (<a href="http://bfred-it.github.io/iphone-inline-video/demo/threejs.html">demo</a>)</li>
+</ul>
+
+<p>This essentially enables <a href="#notes-about-ios-10">iOS 10's <code>playsinline</code> attribute</a> on iOS 8 and iOS 9 (almost a polyfill)</p>
+
+<p><a href="http://bfred-it.github.io/iphone-inline-video/demo/"><img src="http://bfred-it.github.io/iphone-inline-video/demo/demo-preview.gif" alt="Demo"></a></p>
+
+<h2>
+<a id="main-features" class="anchor" href="#main-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Main features</h2>
+
+<ul>
+<li>&lt;2KB, standalone (no frameworks required)</li>
+<li>No setup: include it, call <code>makeVideoPlayableInline(video)</code>, <a href="#usage">done</a>
+</li>
+<li>No custom API for playback, you can just call <code>video.play()</code> on <code>click</code>
+</li>
+<li>Supports <strong>audio</strong>
+</li>
+<li>Supports <a href="#usage-with-autoplaying-videos">autoplay</a> on silent videos</li>
+<li>Doesn't need canvas</li>
+<li>Doesn't create new elements/wrappers</li>
+<li>It works with existing players like jPlayer</li>
+<li><a href="#notes-about-ios-10">Disabled automatically on iOS 10</a></li>
+</ul>
+
+<p>Limitations:</p>
+
+<ul>
+<li>Needs user interaction to play videos with sound (standard iOS limitation)</li>
+<li>Currently limited to iPhone, <a href="https://github.com/bfred-it/iphone-inline-video/issues/48">unneeded on iPad</a>, disabled on Android</li>
+<li>The video framerate depends on <code>requestAnimationFrame</code>, so avoid expensive animations and similar while the video is playing. Try <a href="https://github.com/mrdoob/stats.js/">stats.js</a> to visualize your page's framerate</li>
+<li><a href="https://github.com/bfred-it/iphone-inline-video/labels/known%20issue">Known issues</a></li>
+</ul>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install</h2>
+
+<div class="highlight highlight-source-shell"><pre>npm install --save iphone-inline-video</pre></div>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">makeVideoPlayableInline</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>iphone-inline-video<span class="pl-pds">'</span></span>);</pre></div>
+
+<p>If you don't use node, include the file <code>dist/iphone-inline-video.browser.js</code></p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>You will need:</p>
+
+<ul>
+<li>
+<p>a <code>&lt;video&gt;</code> element with the attribute <code>playsinline</code> (this is needed on iOS 10)</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>file.mp4<span class="pl-pds">"</span></span> <span class="pl-e">playsinline</span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+</li>
+<li>
+<p>the native play buttons will still trigger the fullscreen, so it's best to hide them when iphone-inline-video is enabled. <a href="https://github.com/bfred-it/iphone-inline-video/issues/72#issuecomment-247629743">More info on the <code>.IIV</code> CSS class</a></p>
+
+<div class="highlight highlight-source-css"><pre><span class="pl-e">.IIV</span>::-webkit-media-controls-play-<span class="pl-ent">button</span>,
+<span class="pl-e">.IIV</span>::-webkit-media-controls-start-playback-<span class="pl-ent">button</span> {
+    <span class="pl-c1"><span class="pl-c1">opacity</span></span>: <span class="pl-c1">0</span>;
+    <span class="pl-c1"><span class="pl-c1">pointer-events</span></span>: <span class="pl-c1">none</span>;
+    <span class="pl-c1"><span class="pl-c1">width</span></span>: <span class="pl-c1">5<span class="pl-k">px</span></span>;
+}</pre></div>
+</li>
+<li>
+<p>the activation call  </p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// one video</span>
+<span class="pl-k">var</span> video <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">querySelector</span>(<span class="pl-s"><span class="pl-pds">'</span>video<span class="pl-pds">'</span></span>);
+<span class="pl-en">makeVideoPlayableInline</span>(video);</pre></div>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// or if you're already using jQuery:</span>
+<span class="pl-k">var</span> video <span class="pl-k">=</span> <span class="pl-en">$</span>(<span class="pl-s"><span class="pl-pds">'</span>video<span class="pl-pds">'</span></span>).<span class="pl-c1">get</span>(<span class="pl-c1">0</span>);
+<span class="pl-en">makeVideoPlayableInline</span>(video);</pre></div>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// or if you have multiple videos:</span>
+<span class="pl-en">$</span>(<span class="pl-s"><span class="pl-pds">'</span>video<span class="pl-pds">'</span></span>).<span class="pl-en">each</span>(<span class="pl-k">function</span> () {
+    <span class="pl-en">makeVideoPlayableInline</span>(<span class="pl-v">this</span>);
+});</pre></div>
+</li>
+</ul>
+
+<p>Done! It will only be enabled on iPhones and iPod Touch devices.</p>
+
+<p>Now you can keep using it just like you would on a desktop. Run <code>video.play()</code>, <code>video.pause()</code>, listen to events with <code>video.addEventListener()</code> or <code>$(video).on()</code>, etc...</p>
+
+<p><strong>BUT</strong> you still need user interaction to play the audio, so do something like this:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">makeVideoPlayableInline</span>(video);
+<span class="pl-smi">video</span>.<span class="pl-c1">addEventListener</span>(<span class="pl-s"><span class="pl-pds">'</span>touchstart<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> () {
+    <span class="pl-smi">video</span>.<span class="pl-c1">play</span>();
+});</pre></div>
+
+<p>If at some point you want to open the video in fullscreen, use the standard (but still prefixed) <code>webkitEnterFullScreen()</code> API, but it has some <a href="https://github.com/bfred-it/iphone-inline-video/issues/33">caveats.</a></p>
+
+<h2>
+<a id="usage-with-audio-less-videos" class="anchor" href="#usage-with-audio-less-videos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage with audio-less videos</h2>
+
+<p>If your video file doesn't have an audio track, then you need this:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">makeVideoPlayableInline</span>(video, <span class="pl-c">/* hasAudio */</span> <span class="pl-c1">false</span>);</pre></div>
+
+<p>And the <code>muted</code> attribute</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">muted</span> <span class="pl-e">playsinline</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.mp4<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+
+<p>Muted videos can also be played without user interaction (<code>video.play()</code> doesn't need to be called inside an event listener).</p>
+
+<h2>
+<a id="usage-with-autoplaying-videos" class="anchor" href="#usage-with-autoplaying-videos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage with autoplaying videos</h2>
+
+<p>Thanks to the above behavior, muted videos can also autoplay:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">makeVideoPlayableInline</span>(video, <span class="pl-c">/* hasAudio */</span> <span class="pl-c1">false</span>);</pre></div>
+
+<p>And the <code>autoplay</code> and <code>muted</code> attributes:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">autoplay</span> <span class="pl-e">muted</span> <span class="pl-e">playsinline</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.mp4<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+
+<h2>
+<a id="notes-about-ios-10" class="anchor" href="#notes-about-ios-10" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Notes about iOS 10</h2>
+
+<p>New features in iOS 10:</p>
+
+<ul>
+<li>
+<p>videos play inline:  </p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">playsinline</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.mp4<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+</li>
+<li>
+<p>muted videos play inline without user interaction:  </p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">muted</span> <span class="pl-e">playsinline</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.mp4<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c1">setTimeout</span>(<span class="pl-k">function</span> () { <span class="pl-smi">video</span>.<span class="pl-c1">play</span>(); }, <span class="pl-c1">1000</span>); <span class="pl-c">// example</span></pre></div>
+</li>
+<li>
+<p>muted videos autoplay inline:  </p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">video</span> <span class="pl-e">autoplay</span> <span class="pl-e">muted</span> <span class="pl-e">playsinline</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.mp4<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
+</li>
+</ul>
+
+<p>Essentially everything that this module does, so <code>iphone-inline-video</code> will be automatically disabled there. Make sure you have all the above attributes.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>MIT © <a href="http://twitter.com/bfred_it">Federico Brigante</a></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/grazies/iphone-inline-video">Iphone-inline-video</a> is maintained by <a href="https://github.com/grazies">grazies</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
